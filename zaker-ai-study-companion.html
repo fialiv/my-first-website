@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ذاكِر | مساعدك الذكي للمذاكرة</title>
+<meta name="description" content="ذاكِر يحوّل نص محاضراتك وملازمك إلى ملخص منظم، أسئلة مراجعة، وبطاقات تعليمية باستخدام الذكاء الاصطناعي — مجاناً بالكامل.">
+<meta name="theme-color" content="#0A0D16">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230A0D16'/%3E%3Cpath d='M50 18 L59 41 L82 50 L59 59 L50 82 L41 59 L18 50 L41 41 Z' fill='%23D8B36C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================= TOKENS ============================= */
+:root{
+  --void:#0A0D16;
+  --void-2:#0D111F;
+  --surface:#131728;
+  --surface-2:#1A1F35;
+  --surface-3:#212745;
+  --line:rgba(238,240,247,.08);
+  --line-strong:rgba(238,240,247,.16);
+  --ink:#EEF0F7;
+  --ink-dim:#8B90A6;
+  --ink-faint:#565C74;
+  --gold:#D8B36C;
+  --gold-soft:#F1D999;
+  --gold-dim:rgba(216,179,108,.14);
+  --violet:#8B7CFF;
+  --violet-soft:#B8AFFF;
+  --violet-dim:rgba(139,124,255,.14);
+  --success:#6FCF97;
+  --success-dim:rgba(111,207,151,.14);
+  --danger:#EB6767;
+  --danger-dim:rgba(235,103,103,.14);
+  --font-display:'Cairo',Tahoma,sans-serif;
+  --font-mono:'JetBrains Mono','Consolas',monospace;
+  --r-sm:10px; --r-md:16px; --r-lg:24px; --r-xl:32px;
+  --shadow-lg:0 24px 70px -20px rgba(0,0,0,.55);
+  --shadow-md:0 12px 34px -12px rgba(0,0,0,.45);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;scroll-padding-top:88px;}
+body{
+  background:var(--void);
+  color:var(--ink);
+  font-family:var(--font-display);
+  font-size:16px;
+  line-height:1.7;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block;max-width:100%;}
+ul{list-style:none;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;background:none;border:none;color:inherit;cursor:pointer;}
+input,textarea{font-family:inherit;color:inherit;background:none;border:none;outline:none;}
+h1,h2,h3,h4{font-weight:800;line-height:1.25;}
+
+:focus-visible{outline:2px solid var(--gold-soft);outline-offset:3px;border-radius:6px;}
+
+.container{max-width:1220px;margin-inline:auto;padding-inline:clamp(20px,5vw,48px);}
+.section{padding-block:clamp(64px,10vw,124px);position:relative;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;
+  color:var(--violet-soft);background:var(--violet-dim);
+  border:1px solid rgba(139,124,255,.25);
+  padding:7px 16px;border-radius:100px;margin-bottom:22px;
+}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--violet-soft);box-shadow:0 0 10px var(--violet-soft);}
+.section-head{max-width:640px;margin-inline:auto;text-align:center;margin-bottom:clamp(40px,6vw,72px);}
+.section-head .eyebrow{margin-inline:auto;}
+.section-title{font-size:clamp(1.9rem,3.4vw,2.7rem);margin-bottom:16px;}
+.section-title .accent{color:var(--gold);}
+.section-desc{color:var(--ink-dim);font-size:1.05rem;max-width:520px;margin-inline:auto;}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:15px 30px;border-radius:100px;font-weight:700;font-size:15px;
+  cursor:pointer;transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s var(--ease),border-color .3s var(--ease),opacity .2s;
+  white-space:nowrap;
+}
+.btn-sm{padding:10px 20px;font-size:13.5px;}
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+  color:var(--void);
+  box-shadow:0 10px 32px -10px rgba(216,179,108,.55);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 42px -10px rgba(216,179,108,.7);}
+.btn-primary:active{transform:translateY(0);}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.btn-ghost{background:transparent;border:1px solid var(--line-strong);color:var(--ink);}
+.btn-ghost:hover{border-color:var(--violet);color:var(--violet-soft);background:var(--violet-dim);}
+.btn-block{width:100%;}
+.icon-btn{
+  width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--line-strong);color:var(--ink-dim);font-size:16px;transition:.25s var(--ease);
+}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold-soft);background:var(--gold-dim);}
+
+/* ============================= BACKDROP ============================= */
+.bg-field{position:fixed;inset:0;z-index:-2;overflow:hidden;}
+.bg-field::after{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(rgba(238,240,247,.05) 1px,transparent 1px);
+  background-size:26px 26px;mask-image:radial-gradient(circle at 50% 20%,black,transparent 75%);
+}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;animation:drift 22s ease-in-out infinite;}
+.orb-1{width:520px;height:520px;background:var(--violet);top:-180px;left:-120px;}
+.orb-2{width:460px;height:460px;background:var(--gold);top:20%;right:-160px;animation-delay:-8s;}
+.orb-3{width:380px;height:380px;background:var(--violet);bottom:-140px;left:30%;animation-delay:-15s;}
+@keyframes drift{
+  0%,100%{transform:translate(0,0) scale(1);}
+  50%{transform:translate(40px,-30px) scale(1.08);}
+}
+
+/* ============================= NAV ============================= */
+.nav{
+  position:fixed;top:0;inset-inline:0;z-index:100;
+  padding-block:18px;transition:padding .3s var(--ease),background .3s var(--ease),border-color .3s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.is-scrolled{
+  padding-block:12px;background:rgba(10,13,22,.78);backdrop-filter:blur(16px) saturate(140%);
+  border-color:var(--line);
+}
+.nav__inner{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.01em;}
+.brand__mark{width:34px;height:34px;flex-shrink:0;}
+.brand__mark path{fill:url(#markGrad);}
+.nav__links{display:flex;align-items:center;gap:6px;}
+.nav__link{
+  padding:9px 16px;border-radius:100px;font-size:14.5px;color:var(--ink-dim);
+  transition:color .25s,background .25s;
+}
+.nav__link:hover{color:var(--ink);}
+.nav__link.is-active{color:var(--gold-soft);background:var(--gold-dim);}
+.nav__actions{display:flex;align-items:center;gap:14px;}
+.nav__toggle{display:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--line-strong);align-items:center;justify-content:center;flex-direction:column;gap:5px;}
+.nav__toggle span{width:18px;height:2px;background:var(--ink);border-radius:2px;transition:.3s var(--ease);}
+.nav__toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav__toggle[aria-expanded="true"] span:nth-child(2){opacity:0;}
+.nav__toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+@media (max-width:860px){
+  .nav__links{
+    position:fixed;top:64px;inset-inline:16px;
+    background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-md);
+    flex-direction:column;align-items:stretch;padding:10px;gap:2px;
+    box-shadow:var(--shadow-lg);
+    opacity:0;visibility:hidden;transform:translateY(-8px);
+    transition:.3s var(--ease);
+  }
+  .nav__links.is-open{opacity:1;visibility:visible;transform:translateY(0);}
+  .nav__link{padding:13px 16px;text-align:center;}
+  .nav__toggle{display:inline-flex;}
+  .nav__actions .btn{display:none;}
+}
+
+/* ============================= HERO ============================= */
+.hero{padding-block:clamp(120px,16vw,168px) clamp(70px,9vw,110px);position:relative;}
+.hero__grid{display:grid;grid-template-columns:1.08fr 1fr;gap:clamp(30px,5vw,60px);align-items:center;}
+.hero__title{font-size:clamp(2.15rem,4.6vw,3.6rem);letter-spacing:-.01em;margin-bottom:22px;}
+.hero__title .line{display:block;}
+.hero__title .accent{
+  background:linear-gradient(100deg,var(--gold-soft),var(--gold) 60%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero__sub{color:var(--ink-dim);font-size:clamp(1rem,1.4vw,1.18rem);max-width:520px;margin-bottom:34px;}
+.hero__actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:38px;}
+.hero__trust{display:flex;flex-wrap:wrap;gap:10px 22px;}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-dim);}
+.trust-item svg{width:16px;height:16px;color:var(--gold);flex-shrink:0;}
+
+/* Signature hero visual */
+.hero__visual{position:relative;}
+.hv-stage{position:relative;width:100%;aspect-ratio:1/1.02;max-width:440px;margin-inline:auto;}
+.hv-glow{
+  position:absolute;inset:8%;border-radius:50%;
+  background:radial-gradient(circle,rgba(139,124,255,.35),rgba(216,179,108,.18) 55%,transparent 75%);
+  filter:blur(38px);animation:pulse 5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.65;transform:scale(1);}50%{opacity:1;transform:scale(1.06);}}
+.hv-card{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:min(78%,300px);background:var(--surface);border:1px solid var(--line-strong);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-lg);padding:20px 20px 24px;z-index:3;
+}
+.hv-card__bar{display:flex;align-items:center;gap:7px;margin-bottom:16px;}
+.hv-card__bar span{width:9px;height:9px;border-radius:50%;background:var(--line-strong);}
+.hv-card__bar span:nth-child(1){background:var(--danger);opacity:.6;}
+.hv-card__bar span:nth-child(2){background:var(--gold);opacity:.6;}
+.hv-card__bar span:nth-child(3){background:var(--success);opacity:.6;}
+.hv-card__label{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-inline-start:auto;}
+.hv-skel{height:11px;border-radius:6px;background:linear-gradient(90deg,var(--line),var(--line-strong),var(--line));background-size:200% 100%;margin-bottom:10px;animation:shimmer 2.4s ease-in-out infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.hv-skel:nth-child(2){width:92%;}
+.hv-skel:nth-child(3){width:100%;}
+.hv-skel:nth-child(4){width:80%;}
+.hv-skel:nth-child(5){width:88%;animation-delay:.3s;}
+.hv-skel:nth-child(6){width:65%;margin-bottom:0;animation-delay:.5s;}
+
+.hv-frag{
+  position:absolute;
+  padding:7px 14px;border-radius:100px;
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  font-family:var(--font-mono);font-size:12px;color:var(--ink-dim);
+  white-space:nowrap;z-index:2;
+  transform:translate(-50%,-50%) rotate(var(--rot,0deg));
+  animation:frag-move 7s var(--ease) infinite;
+  animation-delay:var(--delay,0s);
+}
+@keyframes frag-move{
+  0%,100%{top:var(--ta);left:var(--la);opacity:0;}
+  12%{opacity:1;}
+  45%,58%{top:50%;left:50%;opacity:.95;}
+  88%{opacity:0;}
+}
+
+/* ============================= HOW IT WORKS ============================= */
+.how{background:var(--void-2);border-block:1px solid var(--line);}
+.how__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;position:relative;}
+.how__step{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:34px 28px;position:relative;transition:transform .35s var(--ease),border-color .35s;
+}
+.how__step:hover{transform:translateY(-6px);border-color:var(--line-strong);}
+.how__num{font-family:var(--font-mono);font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:20px;display:block;}
+.how__icon{
+  width:52px;height:52px;border-radius:16px;background:var(--violet-dim);
+  display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+}
+.how__icon svg{width:26px;height:26px;color:var(--violet-soft);}
+.how__title{font-size:1.15rem;margin-bottom:10px;}
+.how__desc{color:var(--ink-dim);font-size:.95rem;line-height:1.75;}
+
+/* ============================= APP / TRY SECTION ============================= */
+.app__panel-wrap{display:grid;grid-template-columns:.95fr 1.15fr;gap:26px;align-items:stretch;}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);padding:28px;display:flex;flex-direction:column;}
+.panel__title{display:flex;align-items:center;gap:10px;font-size:1.02rem;font-weight:700;margin-bottom:6px;}
+.panel__title svg{width:20px;height:20px;color:var(--gold);}
+.panel__hint{color:var(--ink-dim);font-size:.86rem;margin-bottom:18px;}
+
+.input-shell{
+  flex:1;background:var(--void-2);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:16px;display:flex;flex-direction:column;transition:border-color .25s;
+}
+.input-shell:focus-within{border-color:var(--violet);}
+#lectureInput{flex:1;min-height:180px;resize:vertical;font-size:.96rem;line-height:1.8;color:var(--ink);}
+#lectureInput::placeholder{color:var(--ink-faint);}
+.input-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.char-count{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);}
+.example-btn{font-size:12.5px;color:var(--violet-soft);display:inline-flex;align-items:center;gap:6px;}
+.example-btn:hover{color:var(--gold-soft);}
+.input-error{color:var(--danger);font-size:.83rem;margin-top:10px;display:none;}
+.input-error.is-visible{display:block;}
+.panel__cta{margin-top:18px;}
+
+.output-panel{position:relative;}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.tabs{display:flex;gap:4px;background:var(--void-2);padding:5px;border-radius:100px;border:1px solid var(--line);flex-wrap:wrap;transition:opacity .3s;}
+.tabs.is-disabled{opacity:.4;pointer-events:none;}
+.tab{padding:8px 14px;border-radius:100px;font-size:12.5px;font-weight:600;color:var(--ink-dim);transition:.25s var(--ease);white-space:nowrap;}
+.tab.is-active{background:var(--surface-3);color:var(--gold-soft);}
+.preview-badge{
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.05em;color:var(--violet-soft);
+  background:var(--violet-dim);border:1px solid rgba(139,124,255,.25);padding:5px 12px;border-radius:100px;
+  white-space:nowrap;
+}
+
+.panel-body{position:relative;min-height:360px;}
+.empty-state,.loading-box,.results-box{display:none;}
+.empty-state.is-active,.loading-box.is-active,.results-box.is-active{display:block;}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:360px;color:var(--ink-faint);}
+.empty-state.is-active{display:flex;}
+.empty-state svg{width:52px;height:52px;margin-bottom:16px;opacity:.5;}
+.empty-state p{font-size:.92rem;max-width:260px;}
+
+.loading-box{min-height:360px;display:flex;flex-direction:column;justify-content:center;gap:18px;}
+.loading-box.is-active{display:flex;}
+.loading-step{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--r-md);
+  border:1px solid var(--line);color:var(--ink-faint);font-size:.92rem;transition:.35s var(--ease);
+}
+.loading-step__dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);flex-shrink:0;position:relative;}
+.loading-step.is-active{border-color:rgba(139,124,255,.35);background:var(--violet-dim);color:var(--ink);}
+.loading-step.is-active .loading-step__dot{border-color:var(--violet);border-top-color:transparent;animation:spin .8s linear infinite;}
+.loading-step.is-done{border-color:rgba(111,207,151,.3);color:var(--ink-dim);}
+.loading-step.is-done .loading-step__dot{border-color:var(--success);background:var(--success);}
+.loading-step.is-done .loading-step__dot::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--void);}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.results-box{animation:fadeUp .5s var(--ease);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.tabpanel{display:none;}
+.tabpanel.is-active{display:block;animation:fadeUp .4s var(--ease);}
+
+.summary-list li{
+  position:relative;padding-inline-start:26px;padding-block:9px;font-size:.94rem;color:var(--ink);
+  border-bottom:1px solid var(--line);
+}
+.summary-list li:last-child{border-bottom:none;}
+.summary-list li::before{
+  content:'';position:absolute;inset-inline-start:0;top:16px;width:8px;height:8px;border-radius:2px;
+  background:var(--gold);transform:rotate(45deg);
+}
+
+/* mind map */
+.mindmap{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:10px;height:340px;}
+.mindmap__lines{position:absolute;inset:0;width:100%;height:100%;}
+.mindmap__lines line{stroke:var(--line-strong);stroke-width:1.5;}
+.mm-node{
+  position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  border-radius:var(--r-md);font-size:.82rem;font-weight:600;padding:8px;line-height:1.5;
+}
+.mm-node span{display:block;font-family:var(--font-mono);font-size:.68rem;font-weight:500;color:var(--ink-dim);margin-top:4px;}
+.mm-center{grid-column:2;grid-row:2;background:linear-gradient(135deg,var(--gold-dim),var(--violet-dim));border:1px solid var(--gold);color:var(--gold-soft);font-size:.92rem;}
+.mm-top{grid-column:2;grid-row:1;background:var(--surface-2);border:1px solid var(--line-strong);}
+.mm-right{grid-column:3;grid-row:2;background:var(--surface-2);border:1px solid var(--line-strong);}
+.mm-bottom{grid-column:2;grid-row:3;background:var(--surface-2);border:1px solid var(--line-strong);}
+.mm-left{grid-column:1;grid-row:2;background:var(--surface-2);border:1px solid var(--line-strong);}
+
+/* quiz */
+.quiz-progress{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);margin-bottom:10px;}
+.quiz-q{font-size:1.02rem;font-weight:700;margin-bottom:18px;}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;}
+.quiz-opt{
+  text-align:start;padding:13px 16px;border-radius:var(--r-md);border:1px solid var(--line-strong);
+  font-size:.92rem;transition:.2s var(--ease);
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--violet);background:var(--violet-dim);}
+.quiz-opt:disabled{cursor:default;opacity:.55;}
+.quiz-opt.is-correct{border-color:var(--success);background:var(--success-dim);color:var(--success);opacity:1;}
+.quiz-opt.is-wrong{border-color:var(--danger);background:var(--danger-dim);color:var(--danger);opacity:1;}
+.quiz-mark{font-weight:800;}
+.quiz-explain{margin-top:16px;padding:14px 16px;background:var(--void-2);border-radius:var(--r-md);font-size:.87rem;color:var(--ink-dim);display:none;border-inline-start:3px solid var(--violet);}
+.quiz-explain.is-visible{display:block;animation:fadeUp .3s var(--ease);}
+.quiz-next{margin-top:18px;}
+.quiz-summary{text-align:center;padding-block:40px;}
+.quiz-summary__title{font-size:1.15rem;font-weight:700;margin-bottom:20px;}
+
+/* flashcards */
+.flash-wrap{display:flex;flex-direction:column;align-items:center;}
+.flash-card{
+  width:100%;max-width:340px;height:190px;position:relative;cursor:pointer;
+  perspective:1200px;
+}
+.flash-face{
+  position:absolute;inset:0;border-radius:var(--r-lg);border:1px solid var(--line-strong);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;
+  padding:24px;backface-visibility:hidden;transition:transform .55s var(--ease);
+}
+.flash-front{background:var(--surface-2);transform:rotateY(0deg);}
+.flash-back{background:linear-gradient(135deg,var(--surface-3),var(--surface-2));transform:rotateY(180deg);}
+.flash-card.is-flipped .flash-front{transform:rotateY(-180deg);}
+.flash-card.is-flipped .flash-back{transform:rotateY(0deg);}
+.flash-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint);}
+.flash-term{font-size:1.4rem;font-weight:800;color:var(--gold-soft);font-family:var(--font-mono);}
+.flash-def{font-size:.95rem;color:var(--ink);line-height:1.7;}
+.flash-hint{font-size:11px;color:var(--ink-faint);margin-top:6px;}
+.flash-controls{display:flex;align-items:center;gap:18px;margin-top:20px;}
+.flash-pos{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-dim);min-width:44px;text-align:center;}
+.flash-actions{display:flex;gap:10px;margin-top:16px;}
+
+/* progress dashboard */
+.progress-dash{margin-top:22px;padding-top:22px;border-top:1px solid var(--line);}
+.progress-dash__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.progress-dash__title{font-size:.88rem;font-weight:700;color:var(--ink-dim);}
+.progress-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.p-tile{background:var(--void-2);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;text-align:center;}
+.p-tile__val{font-family:var(--font-mono);font-size:1.3rem;font-weight:700;color:var(--gold-soft);display:block;}
+.p-tile__label{font-size:11px;color:var(--ink-faint);margin-top:4px;}
+.mastery{display:flex;align-items:center;gap:12px;}
+.mastery__track{flex:1;height:8px;border-radius:100px;background:var(--void-2);overflow:hidden;}
+.mastery__bar{height:100%;width:0%;border-radius:100px;background:linear-gradient(90deg,var(--violet),var(--gold));transition:width .6s var(--ease);}
+.mastery__label{font-family:var(--font-mono);font-size:12px;color:var(--ink-dim);min-width:38px;}
+
+/* ============================= FEATURES ============================= */
+.features__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.feature-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:30px 26px;
+  transition:transform .35s var(--ease),border-color .35s;
+}
+.feature-card:hover{transform:translateY(-5px);border-color:var(--gold);}
+.feature-card__icon{width:46px;height:46px;border-radius:14px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+.feature-card__icon svg{width:23px;height:23px;color:var(--gold);}
+.feature-card__title{font-size:1.05rem;margin-bottom:9px;}
+.feature-card__desc{color:var(--ink-dim);font-size:.9rem;line-height:1.7;}
+
+/* ============================= STATS ============================= */
+.stats{background:var(--void-2);border-block:1px solid var(--line);}
+.stats__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center;}
+.stat-num{font-family:var(--font-mono);font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:700;color:var(--gold-soft);}
+.stat-label{color:var(--ink-dim);font-size:.85rem;margin-top:8px;}
+
+/* ============================= CTA BAND ============================= */
+.cta-band{text-align:center;}
+.cta-band__box{
+  background:linear-gradient(135deg,var(--surface-2),var(--surface));border:1px solid var(--line-strong);
+  border-radius:var(--r-xl);padding:clamp(40px,7vw,72px) clamp(20px,5vw,40px);position:relative;overflow:hidden;
+}
+.cta-band__box::before{
+  content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(216,179,108,.14),transparent 55%),radial-gradient(circle at 80% 80%,rgba(139,124,255,.14),transparent 55%);
+}
+.cta-band__box > *{position:relative;}
+.cta-band__title{font-size:clamp(1.6rem,3vw,2.3rem);margin-bottom:16px;}
+.cta-band__desc{color:var(--ink-dim);margin-bottom:30px;max-width:440px;margin-inline:auto;}
+
+/* ============================= FOOTER ============================= */
+.footer{padding-block:56px 34px;border-top:1px solid var(--line);}
+.footer__grid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:30px;margin-bottom:36px;}
+.footer__brand{max-width:280px;}
+.footer__brand .brand{margin-bottom:12px;}
+.footer__brand p{color:var(--ink-dim);font-size:.88rem;}
+.footer__links{display:flex;gap:60px;flex-wrap:wrap;}
+.footer__col h4{font-size:.85rem;color:var(--ink-faint);margin-bottom:14px;font-weight:700;}
+.footer__col a{display:block;color:var(--ink-dim);font-size:.9rem;padding-block:6px;transition:color .2s;}
+.footer__col a:hover{color:var(--gold-soft);}
+.footer__bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:26px;border-top:1px solid var(--line);color:var(--ink-faint);font-size:.82rem;}
+
+/* ============================= REVEAL ============================= */
+[data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+[data-reveal].is-visible{opacity:1;transform:translateY(0);}
+[data-reveal-stagger] > *{opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .6s var(--ease);}
+[data-reveal-stagger].is-visible > *{opacity:1;transform:translateY(0);}
+[data-reveal-stagger].is-visible > *:nth-child(1){transition-delay:.05s;}
+[data-reveal-stagger].is-visible > *:nth-child(2){transition-delay:.15s;}
+[data-reveal-stagger].is-visible > *:nth-child(3){transition-delay:.25s;}
+[data-reveal-stagger].is-visible > *:nth-child(4){transition-delay:.35s;}
+[data-reveal-stagger].is-visible > *:nth-child(5){transition-delay:.45s;}
+[data-reveal-stagger].is-visible > *:nth-child(6){transition-delay:.55s;}
+
+/* ============================= RESPONSIVE ============================= */
+@media (max-width:980px){
+  .hero__grid{grid-template-columns:1fr;}
+  .hero__visual{order:-1;max-width:340px;margin-inline:auto;}
+  .how__grid{grid-template-columns:1fr;}
+  .app__panel-wrap{grid-template-columns:1fr;}
+  .features__grid{grid-template-columns:repeat(2,1fr);}
+  .stats__grid{grid-template-columns:repeat(2,1fr);gap:30px;}
+  .footer__links{gap:36px;}
+}
+@media (max-width:560px){
+  .features__grid{grid-template-columns:1fr;}
+  .progress-tiles{grid-template-columns:1fr 1fr 1fr;}
+  .p-tile__val{font-size:1.05rem;}
+  .hero__actions{flex-direction:column;align-items:stretch;}
+  .hero__actions .btn{width:100%;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
+  .hv-frag{opacity:0;}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="markGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F1D999"/>
+      <stop offset="100%" stop-color="#D8B36C"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="bg-field" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ============================= NAV ============================= -->
+<nav class="nav" id="siteNav">
+  <div class="container nav__inner">
+    <a href="#home" class="brand">
+      <svg class="brand__mark" viewBox="0 0 100 100"><path d="M50 14 L60 40 L86 50 L60 60 L50 86 L40 60 L14 50 L40 40 Z"/></svg>
+      ذاكِر
+    </a>
+    <div class="nav__links" id="navMenu">
+      <a href="#home" class="nav__link">الرئيسية</a>
+      <a href="#how" class="nav__link">كيف يعمل</a>
+      <a href="#app" class="nav__link">جرّب الآن</a>
+      <a href="#features" class="nav__link">المزايا</a>
+    </div>
+    <div class="nav__actions">
+      <a href="#app" class="btn btn-primary btn-sm">جرّب مجاناً</a>
+      <button class="nav__toggle" id="navToggle" aria-label="فتح القائمة" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main>
+<!-- ============================= HERO ============================= -->
+<header class="hero" id="home">
+  <div class="container hero__grid">
+    <div class="hero__content">
+      <span class="eyebrow">مدعوم بالذكاء الاصطناعي التوليدي</span>
+      <h1 class="hero__title">
+        <span class="line">الصق محاضرتك،</span>
+        <span class="line">واستلم <span class="accent">ملخصها وأسئلتها</span> وبطاقاتها</span>
+      </h1>
+      <p class="hero__sub">ذاكِر يستخدم الذكاء الاصطناعي ليحوّل أي نص دراسي — محاضرة، ملزمة، أو فصل من كتاب — إلى أدوات مراجعة جاهزة خلال ثوانٍ. مصمم للطالب العربي، ومجاني بالكامل.</p>
+      <div class="hero__actions">
+        <a href="#app" class="btn btn-primary">جرّب الآن مجاناً</a>
+        <a href="#how" class="btn btn-ghost">كيف يعمل؟</a>
+      </div>
+      <div class="hero__trust">
+        <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>نتائج خلال ثوانٍ</span>
+        <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>نصك لا يُخزَّن</span>
+        <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>مجاني ١٠٠٪</span>
+      </div>
+    </div>
+
+    <div class="hero__visual">
+      <div class="hv-stage">
+        <div class="hv-glow" aria-hidden="true"></div>
+
+        <div class="hv-frag" style="--ta:8%; --la:12%; --rot:-10deg; --delay:0s;">SSID</div>
+        <div class="hv-frag" style="--ta:14%; --la:82%; --rot:8deg; --delay:.5s;">IEEE 802.11</div>
+        <div class="hv-frag" style="--ta:50%; --la:6%; --rot:-6deg; --delay:1s;">Bandwidth</div>
+        <div class="hv-frag" style="--ta:82%; --la:16%; --rot:9deg; --delay:1.5s;">WPA3</div>
+        <div class="hv-frag" style="--ta:88%; --la:80%; --rot:-8deg; --delay:2s;">Access Point</div>
+        <div class="hv-frag" style="--ta:48%; --la:92%; --rot:6deg; --delay:2.5s;">#شبكات</div>
+
+        <div class="hv-card" aria-hidden="true">
+          <div class="hv-card__bar"><span></span><span></span><span></span><span class="hv-card__label">ملخص.ذكِر</span></div>
+          <div class="hv-skel"></div>
+          <div class="hv-skel"></div>
+          <div class="hv-skel"></div>
+          <div class="hv-skel"></div>
+          <div class="hv-skel"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================= HOW IT WORKS ============================= -->
+<section class="how section" id="how">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">ثلاث خطوات فقط</span>
+      <h2 class="section-title">كيف يعمل <span class="accent">ذاكِر؟</span></h2>
+      <p class="section-desc">من النص الخام إلى أدوات مراجعة كاملة، بدون أي تعقيد</p>
+    </div>
+
+    <div class="how__grid" data-reveal-stagger>
+      <div class="how__step">
+        <span class="how__num">01 / الصق النص</span>
+        <div class="how__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 2h6v4H9z"/><path d="M9 11h6M9 15h4"/></svg></div>
+        <h3 class="how__title">انسخ والصق</h3>
+        <p class="how__desc">انسخ محتوى المحاضرة، الملزمة، أو حتى ملاحظاتك الخاصة، والصقه في مساحة الإدخال.</p>
+      </div>
+      <div class="how__step">
+        <span class="how__num">02 / التحليل</span>
+        <div class="how__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 0-5 5c0 1.5.6 2.4 1.3 3.2.5.6.7 1 .7 1.8v1h6v-1c0-.8.2-1.2.7-1.8.7-.8 1.3-1.7 1.3-3.2a5 5 0 0 0-5-5Z"/><path d="M9 17h6M10 21h4"/></svg></div>
+        <h3 class="how__title">الذكاء الاصطناعي يحلل</h3>
+        <p class="how__desc">نموذج لغوي متقدم يقرأ النص، يفهم الأفكار الرئيسية، ويربط بينها.</p>
+      </div>
+      <div class="how__step">
+        <span class="how__num">03 / النتائج</span>
+        <div class="how__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <h3 class="how__title">استلم أدواتك</h3>
+        <p class="how__desc">ملخص جاهز، أسئلة مراجعة، وبطاقات تعليمية — كل هذا مصمم لمساعدتك تثبّت المعلومة.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= APP / TRY ============================= -->
+<section class="app section" id="app">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">جرّبه الآن</span>
+      <h2 class="section-title">من نص إلى <span class="accent">معرفة راسخة</span></h2>
+      <p class="section-desc">الصق أي نص دراسي، أو جرّب بالمثال الجاهز، وشاهد كيف يرتبه ذاكِر لك</p>
+    </div>
+
+    <div class="app__panel-wrap" data-reveal>
+      <!-- input panel -->
+      <div class="panel">
+        <div class="panel__title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 2h6v4H9z"/></svg>
+          نص المحاضرة أو الملزمة
+        </div>
+        <p class="panel__hint">الأفضل بين ١٠٠ و ٣٠٠٠ كلمة للحصول على أدق نتيجة</p>
+
+        <div class="input-shell">
+          <textarea id="lectureInput" placeholder="الصق النص هنا... مثلاً: محاضرة عن الشبكات، فصل من كتاب، أو ملخص جاهز"></textarea>
+          <div class="input-foot">
+            <span class="char-count" id="charCount">٠ كلمة</span>
+            <button class="example-btn" id="loadExample">📄 جرّب بمثال جاهز</button>
+          </div>
+        </div>
+        <p class="input-error" id="inputError">الرجاء لصق نص لا يقل عن بضع كلمات قبل التحليل</p>
+
+        <button class="btn btn-primary btn-block panel__cta" id="analyzeBtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
+          حلّل بالذكاء الاصطناعي
+        </button>
+
+        <div class="progress-dash">
+          <div class="progress-dash__head">
+            <span class="progress-dash__title">تقدّمك في المذاكرة</span>
+          </div>
+          <div class="progress-tiles">
+            <div class="p-tile"><span class="p-tile__val" id="statAnalyses">0</span><span class="p-tile__label">تحليلات</span></div>
+            <div class="p-tile"><span class="p-tile__val" id="statCards">0</span><span class="p-tile__label">بطاقات رُوجعت</span></div>
+            <div class="p-tile"><span class="p-tile__val" id="statAccuracy">0%</span><span class="p-tile__label">دقة الإجابات</span></div>
+          </div>
+          <div class="mastery">
+            <span class="mastery__label">الإتقان</span>
+            <div class="mastery__track"><div class="mastery__bar" id="masteryBar"></div></div>
+            <span class="mastery__label" id="masteryLabel">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- output panel -->
+      <div class="panel output-panel">
+        <div class="panel-head">
+          <div class="tabs is-disabled" id="tabsWrap" role="tablist">
+            <button class="tab is-active" role="tab" aria-selected="true" data-tab="tabSummary">📝 الملخص</button>
+            <button class="tab" role="tab" aria-selected="false" data-tab="tabMap">🗺️ الخريطة الذهنية</button>
+            <button class="tab" role="tab" aria-selected="false" data-tab="tabQuiz">❓ أسئلة المراجعة</button>
+            <button class="tab" role="tab" aria-selected="false" data-tab="tabCards">🎴 البطاقات</button>
+          </div>
+          <span class="preview-badge">⚙️ وضع المعاينة</span>
+        </div>
+
+        <div class="panel-body">
+          <div class="empty-state is-active" id="emptyState">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <p>النتائج بتظهر هنا بعد التحليل. الصق نص أو جرّب بالمثال الجاهز.</p>
+          </div>
+
+          <div class="loading-box" id="loadingBox">
+            <div class="loading-step" data-step="1"><span class="loading-step__dot"></span>قراءة النص وتحليل بنيته...</div>
+            <div class="loading-step" data-step="2"><span class="loading-step__dot"></span>استخراج الأفكار الرئيسية...</div>
+            <div class="loading-step" data-step="3"><span class="loading-step__dot"></span>توليد أدوات المراجعة...</div>
+          </div>
+
+          <div class="results-box" id="resultsBox">
+            <div class="tabpanel is-active" id="tabSummary" role="tabpanel">
+              <ul class="summary-list">
+                <li>الشبكات اللاسلكية (WLAN) تربط الأجهزة ببعضها بدون أسلاك باستخدام موجات الراديو</li>
+                <li>تعتمد على معيار IEEE 802.11 لتنظيم عملية إرسال البيانات بين الأجهزة</li>
+                <li>نقطة الوصول (Access Point) مسؤولة عن بث الإشارة عبر معرّف يسمى SSID</li>
+                <li>النطاق الترددي (Bandwidth) يحدد مقدار البيانات المنقولة خلال ثانية واحدة</li>
+                <li>بروتوكول WPA3 يوفر أعلى مستوى تشفير وحماية للشبكة من الاختراق</li>
+              </ul>
+            </div>
+
+            <div class="tabpanel" id="tabMap" role="tabpanel">
+              <div class="mindmap">
+                <svg class="mindmap__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <line x1="50" y1="50" x2="50" y2="15"/>
+                  <line x1="50" y1="50" x2="85" y2="50"/>
+                  <line x1="50" y1="50" x2="50" y2="85"/>
+                  <line x1="50" y1="50" x2="15" y2="50"/>
+                </svg>
+                <div class="mm-node mm-center">الشبكات اللاسلكية<span>WLAN</span></div>
+                <div class="mm-node mm-top">المعيار<span>IEEE 802.11</span></div>
+                <div class="mm-node mm-right">المكوّنات<span>Access Point · SSID</span></div>
+                <div class="mm-node mm-bottom">الأداء<span>Bandwidth</span></div>
+                <div class="mm-node mm-left">الأمان<span>WPA3</span></div>
+              </div>
+            </div>
+
+            <div class="tabpanel" id="tabQuiz" role="tabpanel">
+              <div id="quizBody"></div>
+            </div>
+
+            <div class="tabpanel" id="tabCards" role="tabpanel">
+              <div class="flash-wrap">
+                <div class="flash-card" id="flashCard">
+                  <div class="flash-face flash-front">
+                    <span class="flash-label">المصطلح</span>
+                    <span class="flash-term" id="flashTerm"></span>
+                    <span class="flash-hint">اضغط لعرض التعريف ↺</span>
+                  </div>
+                  <div class="flash-face flash-back">
+                    <span class="flash-label">التعريف</span>
+                    <span class="flash-def" id="flashDef"></span>
+                  </div>
+                </div>
+                <div class="flash-controls">
+                  <button class="icon-btn" id="flashPrev" aria-label="البطاقة السابقة">→</button>
+                  <span class="flash-pos" id="flashPos">1 / 4</span>
+                  <button class="icon-btn" id="flashNext" aria-label="البطاقة التالية">←</button>
+                </div>
+                <div class="flash-actions">
+                  <button class="btn btn-ghost btn-sm" id="flashReview">أحتاج مراجعة ↻</button>
+                  <button class="btn btn-primary btn-sm" id="flashKnow">أعرفها ✓</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= FEATURES ============================= -->
+<section class="features section" id="features">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">ليش ذاكِر؟</span>
+      <h2 class="section-title">مصمم عشان <span class="accent">يفهمك</span></h2>
+      <p class="section-desc">مو مجرد أداة تلخيص، رفيق مذاكرة متكامل</p>
+    </div>
+
+    <div class="features__grid" data-reveal-stagger>
+      <div class="feature-card">
+        <div class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></div>
+        <h3 class="feature-card__title">نتائج فورية</h3>
+        <p class="feature-card__desc">تحليل النص واستخراج أدوات المراجعة خلال ثوانٍ معدودة، بدون انتظار.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h9"/></svg></div>
+        <h3 class="feature-card__title">يفهم العربية بعمق</h3>
+        <p class="feature-card__desc">مبني ليتعامل مع النصوص العلمية والأكاديمية العربية بدقة عالية.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.2v-2a4 4 0 0 1 4-4h14M7 21.9l-4-4 4-4"/><path d="M21 11.8v2a4 4 0 0 1-4 4H3"/></svg></div>
+        <h3 class="feature-card__title">تكرار متباعد ذكي</h3>
+        <p class="feature-card__desc">البطاقات التعليمية تعتمد نظام التكرار المتباعد لتثبيت المعلومة بذاكرتك الطويلة.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3 class="feature-card__title">خصوصيتك مضمونة</h3>
+        <p class="feature-card__desc">نص محاضرتك يُعالج مباشرة، ولا يُخزَّن على أي سيرفر خارجي.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg></div>
+        <h3 class="feature-card__title">مصمم للطالب الجامعي</h3>
+        <p class="feature-card__desc">يفهم طبيعة المناهج والمحاضرات الأكاديمية ويتعامل معها بذكاء.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <h3 class="feature-card__title">مجاني بالكامل</h3>
+        <p class="feature-card__desc">بدون اشتراكات، بدون رسوم خفية، بدون حدود مخفية.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= STATS ============================= -->
+<section class="stats section">
+  <div class="container">
+    <div class="stats__grid" data-reveal-stagger>
+      <div><div class="stat-num" data-count="10" data-suffix="< ثانية">0</div><div class="stat-label">متوسط وقت التحليل</div></div>
+      <div><div class="stat-num" data-count="4">0</div><div class="stat-label">أدوات مراجعة من نص واحد</div></div>
+      <div><div class="stat-num" data-count="100" data-suffix="%">0</div><div class="stat-label">مجاني بدون رسوم</div></div>
+      <div><div class="stat-num">∞</div><div class="stat-label">عدد المحاضرات التي تقدر تحللها</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= CTA BAND ============================= -->
+<section class="cta-band section">
+  <div class="container">
+    <div class="cta-band__box" data-reveal>
+      <h2 class="cta-band__title">جاهز تذاكر <span class="accent" style="color:var(--gold)">بذكاء؟</span></h2>
+      <p class="cta-band__desc">جرّب ذاكِر الآن، وحوّل أول محاضرة إلى ملخص وأسئلة وبطاقات خلال دقيقة واحدة.</p>
+      <a href="#app" class="btn btn-primary">جرّب ذاكِر مجاناً</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============================= FOOTER ============================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="#home" class="brand">
+          <svg class="brand__mark" viewBox="0 0 100 100"><path d="M50 14 L60 40 L86 50 L60 60 L50 86 L40 60 L14 50 L40 40 Z"/></svg>
+          ذاكِر
+        </a>
+        <p>مساعدك الذكي للمذاكرة. مشروع مقدَّم ضمن مسابقة TECNO AI 500 Talent Bootcamp 2026.</p>
+      </div>
+      <div class="footer__links">
+        <div class="footer__col">
+          <h4>الموقع</h4>
+          <a href="#home">الرئيسية</a>
+          <a href="#how">كيف يعمل</a>
+          <a href="#app">جرّب الآن</a>
+          <a href="#features">المزايا</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 ذاكِر. صُنع بشغف للطالب العربي.</span>
+      <span>AI 500 Bootcamp · نسخة المعاينة</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- state ---------- */
+  var STORAGE_KEY = 'zaker_progress_v1';
+  var state = loadState();
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { analyses:0, cardsReviewed:0, quizAnswered:0, quizCorrect:0 };
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  /* ---------- nav ---------- */
+  var navToggle = document.getElementById('navToggle');
+  var navMenu = document.getElementById('navMenu');
+  navToggle.addEventListener('click', function(){
+    var open = navMenu.classList.toggle('is-open');
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  var navLinkEls = document.querySelectorAll('.nav__link');
+  navLinkEls.forEach(function(link){
+    link.addEventListener('click', function(){ navMenu.classList.remove('is-open'); navToggle.setAttribute('aria-expanded','false'); });
+  });
+
+  var siteNav = document.getElementById('siteNav');
+  window.addEventListener('scroll', function(){
+    siteNav.classList.toggle('is-scrolled', window.scrollY > 16);
+  }, { passive:true });
+
+  /* scroll spy */
+  var spySections = document.querySelectorAll('main section[id], main header[id]');
+  var spyObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var id = entry.target.id;
+        navLinkEls.forEach(function(l){
+          l.classList.toggle('is-active', l.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin:'-45% 0px -50% 0px' });
+  spySections.forEach(function(s){ spyObserver.observe(s); });
+
+  /* ---------- reveal on scroll ---------- */
+  var revealEls = document.querySelectorAll('[data-reveal], [data-reveal-stagger]');
+  var revealObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.15 });
+  revealEls.forEach(function(el){ revealObserver.observe(el); });
+
+  /* ---------- count up ---------- */
+  var counters = document.querySelectorAll('[data-count]');
+  var counterObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        animateCount(entry.target);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.6 });
+  counters.forEach(function(c){ counterObserver.observe(c); });
+
+  function animateCount(el){
+    var target = parseFloat(el.dataset.count);
+    var suffix = el.dataset.suffix || '';
+    var duration = 1100;
+    var start = null;
+    function tick(ts){
+      if(!start) start = ts;
+      var p = Math.min((ts-start)/duration, 1);
+      var eased = 1 - Math.pow(1-p, 3);
+      var val = Math.round(target * eased);
+      el.textContent = val + suffix;
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- tabs ---------- */
+  var tabs = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.tabpanel');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('is-active'); t.setAttribute('aria-selected','false'); });
+      panels.forEach(function(p){ p.classList.remove('is-active'); });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected','true');
+      var target = document.getElementById(tab.dataset.tab);
+      if(target) target.classList.add('is-active');
+    });
+  });
+
+  /* ---------- textarea + example ---------- */
+  var textarea = document.getElementById('lectureInput');
+  var exampleBtn = document.getElementById('loadExample');
+  var charCount = document.getElementById('charCount');
+  var EXAMPLE_TEXT = "تُعد الشبكات المحلية اللاسلكية (WLAN) من أهم وسائل الاتصال الحديثة، حيث تسمح للأجهزة بالاتصال ببعضها ونقل البيانات دون الحاجة لأسلاك. تعتمد هذه الشبكات على معيار IEEE 802.11 الذي يحدد كيفية إرسال البيانات عبر موجات الراديو. تتكون الشبكة اللاسلكية عادة من نقطة وصول (Access Point) تبث إشارة تحمل معرّفاً يسمى SSID، وتقوم الأجهزة القريبة بالاتصال بهذه النقطة للحصول على الإنترنت. يُقاس أداء الشبكة بعامل يسمى النطاق الترددي (Bandwidth)، وهو مقدار البيانات التي يمكن نقلها خلال ثانية واحدة. ولضمان أمان الشبكة، تُستخدم بروتوكولات تشفير مثل WPA3 لحماية البيانات المنقولة من الاختراق.";
+
+  function updateCharCount(){
+    var words = textarea.value.trim().length ? textarea.value.trim().split(/\s+/).length : 0;
+    charCount.textContent = words + ' كلمة';
+  }
+  exampleBtn.addEventListener('click', function(){
+    textarea.value = EXAMPLE_TEXT;
+    updateCharCount();
+    textarea.focus();
+  });
+  textarea.addEventListener('input', updateCharCount);
+
+  /* ---------- analyze flow ---------- */
+  var analyzeBtn = document.getElementById('analyzeBtn');
+  var loadingBox = document.getElementById('loadingBox');
+  var emptyState = document.getElementById('emptyState');
+  var resultsBox = document.getElementById('resultsBox');
+  var inputError = document.getElementById('inputError');
+  var tabsWrap = document.getElementById('tabsWrap');
+  var loadingSteps = document.querySelectorAll('.loading-step');
+
+  analyzeBtn.addEventListener('click', function(){
+    var text = textarea.value.trim();
+    if(text.length < 20){
+      inputError.classList.add('is-visible');
+      textarea.focus();
+      return;
+    }
+    inputError.classList.remove('is-visible');
+    runAnalysis();
+  });
+
+  function runAnalysis(){
+    analyzeBtn.disabled = true;
+    emptyState.classList.remove('is-active');
+    resultsBox.classList.remove('is-active');
+    loadingBox.classList.add('is-active');
+    loadingSteps.forEach(function(s){ s.classList.remove('is-done','is-active'); });
+
+    var i = 0;
+    function nextStep(){
+      if(i > 0) loadingSteps[i-1].classList.add('is-done');
+      if(i < loadingSteps.length){
+        loadingSteps[i].classList.add('is-active');
+        i++;
+        setTimeout(nextStep, 620);
+      }else{
+        setTimeout(finishAnalysis, 450);
+      }
+    }
+    nextStep();
+  }
+
+  function finishAnalysis(){
+    loadingBox.classList.remove('is-active');
+    resultsBox.classList.add('is-active');
+    tabsWrap.classList.remove('is-disabled');
+    analyzeBtn.disabled = false;
+    state.analyses++;
+    saveState();
+    renderProgress();
+    resetQuiz();
+    resetFlashcards();
+  }
+
+  /* ---------- flashcards ---------- */
+  var flashData = [
+    { term:'SSID', def:'المعرّف الذي يميّز شبكة لاسلكية معينة عن غيرها' },
+    { term:'Access Point', def:'الجهاز المسؤول عن بث إشارة الشبكة اللاسلكية وربط الأجهزة بها' },
+    { term:'Bandwidth', def:'مقدار البيانات التي يمكن نقلها عبر الشبكة خلال ثانية واحدة' },
+    { term:'WPA3', def:'أحدث بروتوكولات التشفير المستخدمة لحماية الشبكات اللاسلكية' }
+  ];
+  var flashIndex = 0;
+  var flashFlipped = false;
+  var flashCardEl = document.getElementById('flashCard');
+  var flashTermEl = document.getElementById('flashTerm');
+  var flashDefEl = document.getElementById('flashDef');
+  var flashPos = document.getElementById('flashPos');
+
+  function renderFlash(){
+    var card = flashData[flashIndex];
+    flashTermEl.textContent = card.term;
+    flashDefEl.textContent = card.def;
+    flashCardEl.classList.remove('is-flipped');
+    flashFlipped = false;
+    flashPos.textContent = (flashIndex+1) + ' / ' + flashData.length;
+  }
+  function resetFlashcards(){ flashIndex = 0; renderFlash(); }
+
+  flashCardEl.addEventListener('click', function(){
+    flashFlipped = !flashFlipped;
+    flashCardEl.classList.toggle('is-flipped', flashFlipped);
+  });
+  document.getElementById('flashPrev').addEventListener('click', function(e){
+    e.stopPropagation();
+    flashIndex = (flashIndex - 1 + flashData.length) % flashData.length;
+    renderFlash();
+  });
+  document.getElementById('flashNext').addEventListener('click', function(e){
+    e.stopPropagation();
+    flashIndex = (flashIndex + 1) % flashData.length;
+    renderFlash();
+  });
+  document.getElementById('flashKnow').addEventListener('click', function(e){
+    e.stopPropagation();
+    state.cardsReviewed++;
+    saveState();
+    renderProgress();
+    document.getElementById('flashNext').click();
+  });
+  document.getElementById('flashReview').addEventListener('click', function(e){
+    e.stopPropagation();
+    state.cardsReviewed++;
+    saveState();
+    renderProgress();
+    document.getElementById('flashNext').click();
+  });
+
+  /* ---------- quiz ---------- */
+  var quizData = [
+    { q:'ما المعيار المستخدم لتنظيم عمل الشبكات اللاسلكية؟', options:['TCP/IP','IEEE 802.11','HTTP','USB 3.0'], correct:1, explain:'IEEE 802.11 هو المعيار العالمي الذي يحدد كيفية عمل الشبكات المحلية اللاسلكية.' },
+    { q:'ما وظيفة نقطة الوصول (Access Point)؟', options:['تخزين الملفات','بث إشارة الشبكة اللاسلكية','تشفير كلمات المرور فقط','قياس سرعة المعالج'], correct:1, explain:'نقطة الوصول تبث الإشارة اللاسلكية وتتيح للأجهزة القريبة الاتصال بالشبكة.' },
+    { q:'أي بروتوكول يوفر أعلى مستوى حماية لشبكة لاسلكية؟', options:['WEP','WPA','WPA3','FTP'], correct:2, explain:'WPA3 هو أحدث وأقوى بروتوكولات التشفير المستخدمة حالياً لحماية الشبكات اللاسلكية.' }
+  ];
+  var quizIndex = 0;
+  var quizLocked = false;
+  var quizBody = document.getElementById('quizBody');
+
+  function resetQuiz(){ quizIndex = 0; renderQuiz(); }
+
+  function renderQuiz(){
+    if(quizIndex >= quizData.length){ renderQuizSummary(); return; }
+    var item = quizData[quizIndex];
+    quizLocked = false;
+    quizBody.innerHTML =
+      '<div class="quiz-progress">سؤال ' + (quizIndex+1) + ' من ' + quizData.length + '</div>' +
+      '<div class="quiz-q">' + item.q + '</div>' +
+      '<div class="quiz-opts" id="quizOpts"></div>' +
+      '<p class="quiz-explain" id="quizExplain"></p>' +
+      '<button class="btn btn-ghost quiz-next" id="quizNextBtn" style="display:none;">السؤال التالي ←</button>';
+
+    var optsWrap = document.getElementById('quizOpts');
+    item.options.forEach(function(opt, idx){
+      var b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.textContent = opt;
+      b.addEventListener('click', function(){ selectQuizOption(idx); });
+      optsWrap.appendChild(b);
+    });
+  }
+
+  function selectQuizOption(idx){
+    if(quizLocked) return;
+    quizLocked = true;
+    var item = quizData[quizIndex];
+    var opts = document.querySelectorAll('#quizOpts .quiz-opt');
+    opts.forEach(function(o, i){
+      o.disabled = true;
+      if(i === item.correct){ o.classList.add('is-correct'); o.insertAdjacentHTML('beforeend',' <span class="quiz-mark">✓</span>'); }
+      else if(i === idx){ o.classList.add('is-wrong'); o.insertAdjacentHTML('beforeend',' <span class="quiz-mark">✕</span>'); }
+    });
+    var explainEl = document.getElementById('quizExplain');
+    explainEl.textContent = item.explain;
+    explainEl.classList.add('is-visible');
+    document.getElementById('quizNextBtn').style.display = 'inline-flex';
+
+    state.quizAnswered++;
+    if(idx === item.correct) state.quizCorrect++;
+    saveState();
+    renderProgress();
+  }
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.id === 'quizNextBtn'){ quizIndex++; renderQuiz(); }
+    if(e.target && e.target.id === 'quizRestart'){ resetQuiz(); }
+  });
+
+  function renderQuizSummary(){
+    var pct = state.quizAnswered ? Math.round((state.quizCorrect/state.quizAnswered)*100) : 0;
+    quizBody.innerHTML =
+      '<div class="quiz-summary">' +
+        '<div class="quiz-summary__title">أحسنت! أنهيت أسئلة المراجعة 🎉</div>' +
+        '<button class="btn btn-primary" id="quizRestart">أعد المحاولة ↻</button>' +
+      '</div>';
+  }
+
+  /* ---------- progress ---------- */
+  function renderProgress(){
+    document.getElementById('statAnalyses').textContent = state.analyses;
+    document.getElementById('statCards').textContent = state.cardsReviewed;
+    var acc = state.quizAnswered ? Math.round((state.quizCorrect/state.quizAnswered)*100) : 0;
+    document.getElementById('statAccuracy').textContent = acc + '%';
+    var mastery = Math.min(100, state.cardsReviewed*8 + state.quizCorrect*12);
+    document.getElementById('masteryBar').style.width = mastery + '%';
+    document.getElementById('masteryLabel').textContent = mastery + '%';
+  }
+
+  /* ---------- init ---------- */
+  renderProgress();
+  renderFlash();
+  renderQuiz();
+  updateCharCount();
+
+})();
+</script>
+</body>
+</html>
